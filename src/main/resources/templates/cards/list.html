@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Cards')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<div class="container">
+    <div class="top-bar">
+        <div>
+            <h1 th:text="${deck.name}"></h1>
+            <p th:if="${deck.description}" th:text="${deck.description}" style="color:#666; margin-top:-12px;"></p>
+        </div>
+        <div class="card-actions">
+            <a th:href="@{/decks/{id}/study(id=${deck.id})}" class="btn btn-success"
+               th:if="${!#lists.isEmpty(cards)}">Study</a>
+            <a th:href="@{/decks/{deckId}/cards/new(deckId=${deck.id})}" class="btn btn-primary">Add Card</a>
+        </div>
+    </div>
+
+    <div th:if="${#lists.isEmpty(cards)}" class="empty-state">
+        <p>No cards in this deck yet.</p>
+        <a th:href="@{/decks/{deckId}/cards/new(deckId=${deck.id})}" class="btn btn-primary">Add Your First Card</a>
+    </div>
+
+    <div th:each="card : ${cards}" class="card">
+        <div class="card-header">
+            <div>
+                <strong>Q:</strong> <span th:text="${card.question}"></span>
+            </div>
+            <div class="card-actions">
+                <span class="stats" th:if="${card.timesStudied > 0}"
+                      th:text="${card.successRate} + '% (' + ${card.timesCorrect} + '/' + ${card.timesStudied} + ')'"></span>
+                <a th:href="@{/decks/{deckId}/cards/{id}/edit(deckId=${deck.id}, id=${card.id})}"
+                   class="btn btn-secondary btn-sm">Edit</a>
+                <form th:action="@{/decks/{deckId}/cards/{id}/delete(deckId=${deck.id}, id=${card.id})}"
+                      method="post" class="inline-form">
+                    <button type="submit" class="btn btn-danger btn-sm"
+                            onclick="return confirm('Delete this card?')">Delete</button>
+                </form>
+            </div>
+        </div>
+        <p><strong>A:</strong> <span th:text="${card.answer}"></span></p>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <a href="/decks" class="btn btn-secondary">Back to Decks</a>
+    </div>
+</div>
+</body>
+</html>

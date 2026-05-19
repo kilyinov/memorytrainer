@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Card')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<div class="container">
+    <h1 th:text="${card.id != null ? 'Edit Card' : 'New Card'}"></h1>
+
+    <div class="card">
+        <form th:action="${card.id != null
+            ? '/decks/' + deckId + '/cards/' + card.id
+            : '/decks/' + deckId + '/cards'}"
+              method="post" th:object="${card}">
+            <div class="form-group">
+                <label for="question">Question</label>
+                <textarea id="question" th:field="*{question}" rows="3"
+                          placeholder="What do you want to remember?"></textarea>
+                <div class="error" th:if="${#fields.hasErrors('question')}" th:errors="*{question}"></div>
+            </div>
+            <div class="form-group">
+                <label for="answer">Answer</label>
+                <textarea id="answer" th:field="*{answer}" rows="3"
+                          placeholder="The answer to your question"></textarea>
+                <div class="error" th:if="${#fields.hasErrors('answer')}" th:errors="*{answer}"></div>
+            </div>
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a th:href="@{/decks/{deckId}/cards(deckId=${deckId})}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+</body>
+</html>

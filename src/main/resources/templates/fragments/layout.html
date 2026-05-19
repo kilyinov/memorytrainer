@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Memory Trainer</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav th:fragment="nav">
+    <div class="container">
+        <a href="/decks" class="brand">Memory Trainer</a>
+        <a href="/decks">My Decks</a>
+    </div>
+</nav>
+</body>
+</html>

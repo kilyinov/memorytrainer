@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Study')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<div class="container study-container">
+    <div class="study-progress">
+        <span>Studying: <strong th:text="${deck.name}"></strong></span>
+        &mdash;
+        <span id="progress"></span>
+    </div>
+
+    <div id="flashcard" class="flashcard" onclick="flipCard()">
+        <div class="label" id="card-label">Question</div>
+        <div class="content" id="card-content"></div>
+    </div>
+
+    <div id="controls" class="study-controls" style="display:none;">
+        <button class="btn btn-danger" onclick="answer(false)">Didn't Know</button>
+        <button class="btn btn-success" onclick="answer(true)">Got It</button>
+    </div>
+
+    <div id="done" class="study-done" style="display:none;">
+        <h2>Session Complete</h2>
+        <div class="score" id="score"></div>
+        <p id="summary"></p>
+        <a th:href="@{/decks/{id}/study(id=${deck.id})}" class="btn btn-primary">Study Again</a>
+        <a th:href="@{/decks/{id}/cards(id=${deck.id})}" class="btn btn-secondary">Back to Cards</a>
+    </div>
+
+    <script th:inline="javascript">
+        const deckId = [[${deck.id}]];
+        const cards = /*[[${cards}]]*/ [];
+        let current = 0;
+        let correct = 0;
+        let flipped = false;
+
+        function showCard() {
+            if (current >= cards.length) {
+                document.getElementById('flashcard').style.display = 'none';
+                document.getElementById('controls').style.display = 'none';
+                document.getElementById('done').style.display = 'block';
+                const pct = cards.length > 0 ? Math.round(correct / cards.length * 100) : 0;
+                document.getElementById('score').textContent = pct + '%';
+                document.getElementById('summary').textContent =
+                    correct + ' out of ' + cards.length + ' correct';
+                return;
+            }
+            flipped = false;
+            document.getElementById('card-label').textContent = 'Question';
+            document.getElementById('card-content').textContent = cards[current].question;
+            document.getElementById('flashcard').classList.remove('showing-answer');
+            document.getElementById('controls').style.display = 'none';
+            document.getElementById('progress').textContent =
+                (current + 1) + ' / ' + cards.length;
+        }
+
+        function flipCard() {
+            if (flipped || current >= cards.length) return;
+            flipped = true;
+            document.getElementById('card-label').textContent = 'Answer';
+            document.getElementById('card-content').textContent = cards[current].answer;
+            document.getElementById('flashcard').classList.add('showing-answer');
+            document.getElementById('controls').style.display = 'flex';
+        }
+
+        function answer(isCorrect) {
+            if (isCorrect) correct++;
+            fetch('/decks/' + deckId + '/study/answer', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'cardId=' + cards[current].id + '&correct=' + isCorrect
+            });
+            current++;
+            showCard();
+        }
+
+        showCard();
+    </script>
+</div>
+</body>
+</html>
